@@ -19,10 +19,10 @@ function Home() {
             </div>
             <div className="col-md-6 text-center">
               <img 
-                src="/img/images14.jpeg" 
+                src="/img/images14.jpg" 
                 alt="Torta de celebración" 
                 className="img-fluid hero-image" 
-              />
+                />
             </div>
           </div>
         </div>

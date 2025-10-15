@@ -106,7 +106,7 @@ function Products() {
   ];
 
   // Filtrar productos por categoría
-  const filteredProducts = products.filter(product => 
+  const filteredProducts = products.filter(product =>
     selectedCategory === 'all' || product.categories.includes(selectedCategory)
   );
 
@@ -172,8 +172,8 @@ function Products() {
         <div className="container">
           <div className="row justify-content-center">
             <div className="col-md-3 mb-2">
-              <select 
-                className="form-select" 
+              <select
+                className="form-select"
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
               >
@@ -184,8 +184,8 @@ function Products() {
               </select>
             </div>
             <div className="col-md-3 mb-2">
-              <select 
-                className="form-select" 
+              <select
+                className="form-select"
                 value={sizeFilter}
                 onChange={(e) => setSizeFilter(e.target.value)}
               >
@@ -206,17 +206,17 @@ function Products() {
             {sortedProducts.map(product => (
               <div key={product.id} className="col-lg-4 col-md-6 mb-4">
                 <div className="card product-card h-100">
-                  <img 
-                    src={product.image} 
-                    className="card-img-top product-img" 
-                    alt={product.title} 
+                  <img
+                    src={product.image}
+                    className="card-img-top product-img"
+                    alt={product.title}
                   />
                   <div className="card-body d-flex flex-column">
                     <h5 className="card-title">{product.title}</h5>
                     <p className="card-text flex-grow-1">{product.description}</p>
                     <p className="price">${product.price.toLocaleString('es-CL')}</p>
-                    <Link 
-                      to={`/detalle-producto/${product.id}`} 
+                    <Link
+                      to={`/producto/${product.id}`} // 🔧 Ruta corregida para coincidir con App.jsx
                       className="btn btn-primary mt-auto"
                     >
                       Ver detalles
@@ -228,53 +228,6 @@ function Products() {
           </div>
         </div>
       </section>
-
-      {/* Footer */}
-      <footer className="footer py-5">
-        <div className="container">
-          <div className="row">
-            <div className="col-md-4 mb-4">
-              <h4>Pastelería Mil Sabores</h4>
-              <p>
-                50 años endulzando momentos especiales con las mejores recetas 
-                tradicionales y modernas de la repostería chilena.
-              </p>
-              <div className="social-links">
-                <a href="#" className="social-link">Facebook</a>
-                <a href="#" className="social-link">Instagram</a>
-                <a href="#" className="social-link">Twitter</a>
-              </div>
-            </div>
-            <div className="col-md-4 mb-4">
-              <h4>Enlaces Rápidos</h4>
-              <ul className="footer-links">
-                <li><Link to="/">Inicio</Link></li>
-                <li><Link to="/productos">Productos</Link></li>
-                <li><Link to="/nosotros">Nosotros</Link></li>
-                <li><Link to="/contacto">Contacto</Link></li>
-              </ul>
-            </div>
-            <div className="col-md-4 mb-4">
-              <h4>Contacto</h4>
-              <p>
-                Av. Dulce 1234, Santiago Centro<br />
-                Región Metropolitana, Chile
-              </p>
-              <p>
-                Teléfono: +56 2 2345 6789<br />
-                Email: info@pasteleriamilsabores.cl
-              </p>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col-12 text-center">
-              <p className="copyright">
-                &copy; 2025 Pastelería Mil Sabores. Todos los derechos reservados.
-              </p>
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -1,6 +1,6 @@
-// src/pages/DetalleProducto.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useCart } from '../components/CartContext'; // RUTA CORREGIDA
 
 const DetalleProducto = () => {
   const { productId } = useParams();
@@ -8,6 +8,7 @@ const DetalleProducto = () => {
   const [selectedSize, setSelectedSize] = useState('pequeno');
   const [quantity, setQuantity] = useState(1);
   const [message, setMessage] = useState('');
+  const { addToCart } = useCart();
 
   // Base de datos de productos
   const products = {
@@ -112,7 +113,6 @@ const DetalleProducto = () => {
   useEffect(() => {
     if (productId && products[productId]) {
       setProduct(products[productId]);
-      // Actualizar título de la página
       document.title = `${products[productId].title} - Pastelería Mil Sabores`;
     }
   }, [productId]);
@@ -136,11 +136,9 @@ const DetalleProducto = () => {
       image: product.image
     };
 
-    // Aquí puedes agregar la lógica para añadir al carrito
-    alert(`¡Producto añadido al carrito!\n${quantity} x ${product.title}\nTamaño: ${selectedSize}\n${message ? 'Mensaje: ' + message : ''}`);
+    addToCart(cartItem);
     
-    // Actualizar el contador del carrito (necesitarías un contexto o estado global)
-    console.log('Producto añadido:', cartItem);
+    alert(`¡${product.title} añadido al carrito!\n${quantity} x ${product.title}\nTamaño: ${selectedSize}\n${message ? 'Mensaje: ' + message : ''}`);
   };
 
   if (!product) {

@@ -1,8 +1,10 @@
-// src/components/Navbar.jsx
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useCart } from './CartContext'; // Esta debería estar bien
 
 const Navbar = () => {
+  const { getTotalItems } = useCart();
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light fixed-top custom-navbar">
       <div className="container">
@@ -32,7 +34,7 @@ const Navbar = () => {
             </li>
             <li className="nav-item">
               <Link className="nav-link cart-link" to="/carrito">
-                Carrito <span className="cart-count">(0)</span>
+                Carrito <span className="cart-count">({getTotalItems()})</span>
               </Link>
             </li>
           </ul>

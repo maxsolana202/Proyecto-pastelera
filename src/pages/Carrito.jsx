@@ -1,100 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { useCart } from '../components/CartContext'; // Ruta corregida
 
 function Carrito() {
-  const [cart, setCart] = useState([]);
-  const [products] = useState({
-    'torta-chocolate': {
-      id: 'torta-chocolate',
-      title: 'Torta de Chocolate',
-      price: 15000,
-      description: 'Deliciosa torta de chocolate con relleno de crema y cubierta de ganache.',
-      image: '/img/images10.jpeg'
-    },
-    'torta-frutal': {
-      id: 'torta-frutal',
-      title: 'Torta Frutal',
-      price: 18000,
-      description: 'Torta esponjosa con crema y decorada con variedad de frutas frescas de la estación.',
-      image: '/img/images11.jpeg'
-    },
-    'red-velvet': {
-      id: 'red-velvet',
-      title: 'Torta Red Velvet',
-      price: 20000,
-      description: 'Clásica torta roja con sabor a vainilla y chocolate, cubierta con frosting de queso crema.',
-      image: '/img/images6.jpeg'
-    },
-    'torta-sin-azucar': {
-      id: 'torta-sin-azucar',
-      title: 'Torta Sin Azúcar',
-      price: 16500,
-      description: 'Exquisita torta endulzada naturalmente, ideal para personas con restricciones de azúcar.',
-      image: '/img/images4.jpeg'
-    }
-  });
+  const { 
+    cartItems, 
+    removeFromCart, 
+    updateQuantity, 
+    clearCart, 
+    getTotalPrice,
+    getTotalItems 
+  } = useCart();
 
-  // Cargar carrito desde localStorage
-  useEffect(() => {
-    const savedCart = localStorage.getItem('cart');
-    if (savedCart) {
-      setCart(JSON.parse(savedCart));
-    }
-  }, []);
-
-  // Guardar carrito en localStorage cuando cambie
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
-
-  const updateQuantity = (index, change) => {
-    const newCart = [...cart];
-    if (newCart[index]) {
-      newCart[index].quantity += change;
-      
-      if (newCart[index].quantity < 1) {
-        newCart[index].quantity = 1;
+  const handleQuantityChange = (productId, size, change) => {
+    const item = cartItems.find(item => item.id === productId && item.size === size);
+    if (item) {
+      const newQuantity = item.quantity + change;
+      if (newQuantity >= 1) {
+        updateQuantity(productId, size, newQuantity);
       }
-      
-      setCart(newCart);
     }
   };
 
-  const setQuantity = (index, quantity) => {
-    const newCart = [...cart];
-    if (newCart[index]) {
-      newCart[index].quantity = quantity;
-      setCart(newCart);
-    }
-  };
-
-  const removeFromCart = (index) => {
-    const newCart = cart.filter((_, i) => i !== index);
-    setCart(newCart);
-  };
-
-  const calculateSubtotal = () => {
-    return cart.reduce((total, item) => {
-      const product = products[item.id];
-      return total + (product ? product.price * item.quantity : 0);
-    }, 0);
+  const handleRemoveItem = (productId, size) => {
+    removeFromCart(productId, size);
   };
 
   const calculateShipping = () => {
-    return cart.length > 0 ? 3000 : 0;
+    return cartItems.length > 0 ? 3000 : 0;
   };
 
   const calculateTotal = () => {
-    return calculateSubtotal() + calculateShipping();
+    return getTotalPrice() + calculateShipping();
   };
 
   const handleCheckout = () => {
     alert('¡Gracias por tu compra! En un futuro esto te llevará a completar tu pedido.');
   };
 
-  const subtotal = calculateSubtotal();
+  const subtotal = getTotalPrice();
   const shipping = calculateShipping();
   const total = calculateTotal();
+
+  if (cartItems.length === 0) {
+    return (
+      <div>
+        {/* Breadcrumb */}
+        <section className="breadcrumb-section py-3 mt-5">
+          <div className="container">
+            <nav aria-label="breadcrumb">
+              <ol className="breadcrumb">
+                <li className="breadcrumb-item"><Link to="/">Inicio</Link></li>
+                <li className="breadcrumb-item active">Carrito de Compras</li>
+              </ol>
+            </nav>
+          </div>
+        </section>
+
+        {/* Cart Content */}
+        <section className="cart-content py-5">
+          <div className="container">
+            <h1 className="mb-4">Tu Carrito de Compras</h1>
+            <div className="empty-cart text-center py-5">
+              <div className="empty-cart-icon mb-3">
+                <i className="fas fa-shopping-cart fa-4x text-muted"></i>
+              </div>
+              <h3>Tu carrito está vacío</h3>
+              <p>Agrega algunos productos deliciosos para comenzar</p>
+              <Link to="/productos" className="btn btn-primary mt-3">
+                Ver Productos
+              </Link>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div>
@@ -117,47 +98,43 @@ function Carrito() {
           
           <div className="row">
             <div className="col-lg-8">
-              {cart.length === 0 ? (
-                <div className="empty-cart">
-                  <div className="empty-cart-icon"></div>
-                  <h3>Tu carrito está vacío</h3>
-                  <p>Agrega algunos productos deliciosos para comenzar</p>
-                  <Link to="/productos" className="btn btn-primary mt-3">
-                    Ver Productos
-                  </Link>
-                </div>
-              ) : (
-                <div id="cart-items-container">
-                  {cart.map((item, index) => {
-                    const product = products[item.id];
-                    if (!product) return null;
-                    
-                    const itemTotal = product.price * item.quantity;
-                    
-                    return (
-                      <div key={index} className="cart-item" data-product-id={item.id}>
+              <div id="cart-items-container">
+                {cartItems.map((item, index) => {
+                  const itemTotal = typeof item.price === 'string' 
+                    ? parseInt(item.price.replace('$', '').replace('.', '').replace('+', '')) * item.quantity
+                    : item.price * item.quantity;
+                  
+                  return (
+                    <div key={`${item.id}-${item.size}-${index}`} className="cart-item card mb-3" data-product-id={item.id}>
+                      <div className="card-body">
                         <div className="row align-items-center">
                           <div className="col-3 col-md-2">
                             <img 
-                              src={product.image} 
-                              alt={product.title} 
-                              className="cart-item-image img-fluid" 
+                              src={item.image} 
+                              alt={item.name} 
+                              className="cart-item-image img-fluid rounded" 
+                              style={{ height: '80px', objectFit: 'cover' }}
                             />
                           </div>
                           <div className="col-9 col-md-5">
-                            <h5 className="mb-1">{product.title}</h5>
+                            <h5 className="mb-1">{item.name}</h5>
                             <p className="text-muted mb-0">
-                              {product.description.substring(0, 60)}...
+                              Tamaño: {item.size.charAt(0).toUpperCase() + item.size.slice(1)}
                             </p>
+                            {item.message && (
+                              <p className="text-muted mb-0">
+                                Mensaje: {item.message}
+                              </p>
+                            )}
                             <p className="mb-0 product-price">
-                              ${product.price.toLocaleString('es-CL')}
+                              {typeof item.price === 'string' ? item.price : `$${item.price.toLocaleString('es-CL')}`}
                             </p>
                           </div>
                           <div className="col-6 col-md-3">
                             <div className="quantity-selector d-flex align-items-center">
                               <button 
                                 className="btn btn-outline-secondary quantity-btn" 
-                                onClick={() => updateQuantity(index, -1)}
+                                onClick={() => handleQuantityChange(item.id, item.size, -1)}
                               >
                                 -
                               </button>
@@ -167,11 +144,11 @@ function Carrito() {
                                 value={item.quantity} 
                                 min="1" 
                                 style={{width: '60px'}}
-                                onChange={(e) => setQuantity(index, parseInt(e.target.value) || 1)}
+                                onChange={(e) => updateQuantity(item.id, item.size, parseInt(e.target.value) || 1)}
                               />
                               <button 
                                 className="btn btn-outline-secondary quantity-btn" 
-                                onClick={() => updateQuantity(index, 1)}
+                                onClick={() => handleQuantityChange(item.id, item.size, 1)}
                               >
                                 +
                               </button>
@@ -183,53 +160,60 @@ function Carrito() {
                             </p>
                             <button 
                               className="btn btn-sm btn-outline-danger" 
-                              onClick={() => removeFromCart(index)}
+                              onClick={() => handleRemoveItem(item.id, item.size)}
                             >
                               Eliminar
                             </button>
                           </div>
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="text-end mb-3">
+                <button className="btn btn-outline-danger" onClick={clearCart}>
+                  Vaciar Carrito
+                </button>
+              </div>
             </div>
             
             <div className="col-lg-4">
-              <div className="summary-card">
-                <h3 className="mb-4">Resumen de Compra</h3>
-                
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Subtotal:</span>
-                  <span id="subtotal">${subtotal.toLocaleString('es-CL')}</span>
-                </div>
-                
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Envío:</span>
-                  <span id="shipping">${shipping.toLocaleString('es-CL')}</span>
-                </div>
-                
-                <hr />
-                
-                <div className="d-flex justify-content-between mb-4">
-                  <strong>Total:</strong>
-                  <strong id="total">${total.toLocaleString('es-CL')}</strong>
-                </div>
-                
-                <button 
-                  id="checkout-btn" 
-                  className="btn btn-primary w-100" 
-                  disabled={cart.length === 0}
-                  onClick={handleCheckout}
-                >
-                  Proceder al Pago
-                </button>
-                
-                <div className="mt-3 text-center">
-                  <Link to="/productos" className="text-decoration-none">
-                    ← Continuar comprando
-                  </Link>
+              <div className="summary-card card">
+                <div className="card-body">
+                  <h3 className="mb-4">Resumen de Compra</h3>
+                  
+                  <div className="d-flex justify-content-between mb-2">
+                    <span>Productos ({getTotalItems()}):</span>
+                    <span id="subtotal">${subtotal.toLocaleString('es-CL')}</span>
+                  </div>
+                  
+                  <div className="d-flex justify-content-between mb-2">
+                    <span>Envío:</span>
+                    <span id="shipping">${shipping.toLocaleString('es-CL')}</span>
+                  </div>
+                  
+                  <hr />
+                  
+                  <div className="d-flex justify-content-between mb-4">
+                    <strong>Total:</strong>
+                    <strong id="total">${total.toLocaleString('es-CL')}</strong>
+                  </div>
+                  
+                  <button 
+                    id="checkout-btn" 
+                    className="btn btn-primary w-100" 
+                    onClick={handleCheckout}
+                  >
+                    Proceder al Pago
+                  </button>
+                  
+                  <div className="mt-3 text-center">
+                    <Link to="/productos" className="text-decoration-none">
+                      ← Continuar comprando
+                    </Link>
+                  </div>
                 </div>
               </div>
             </div>
