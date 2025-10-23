@@ -1,235 +1,87 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 
-function Products() {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [sortBy, setSortBy] = useState('default');
-  const [sizeFilter, setSizeFilter] = useState('all');
-
-  const products = [
-    {
-      id: 'torta-chocolate',
-      title: 'Torta de Chocolate',
-      price: 15000,
-      description: 'Deliciosa torta de chocolate con relleno de crema y cubierta de ganache.',
-      image: '/img/images2.jpeg',
-      categories: ['tortas-cuadradas', 'tradicional']
-    },
-    {
-      id: 'torta-frutal',
-      title: 'Torta Frutal',
-      price: 18000,
-      description: 'Torta esponjosa con crema y decorada con variedad de frutas frescas de la estación.',
-      image: '/img/images12.jpeg',
-      categories: ['tortas-circulares', 'tradicional']
-    },
-    {
-      id: 'red-velvet',
-      title: 'Torta Red Velvet',
-      price: 20000,
-      description: 'Clásica torta roja con sabor a vainilla y chocolate, cubierta con frosting de queso crema.',
-      image: '/img/images5.jpeg',
-      categories: ['tortas-circulares', 'especiales']
-    },
-    {
-      id: 'torta-sin-azucar',
-      title: 'Torta Sin Azúcar',
-      price: 16500,
-      description: 'Exquisita torta endulzada naturalmente, ideal para personas con restricciones de azúcar.',
-      image: '/img/images8.jpeg',
-      categories: ['tortas-cuadradas', 'sin-azucar']
-    },
-    {
-      id: 'torta-sin-gluten',
-      title: 'Torta Sin Gluten',
-      price: 19000,
-      description: 'Deliciosa opción para celíacos, elaborada con harinas alternativas y mismo sabor exquisito.',
-      image: '/img/images4.jpeg',
-      categories: ['tortas-circulares', 'sin-gluten']
-    },
-    {
-      id: 'torta-vegana',
-      title: 'Torta Vegana',
-      price: 17500,
-      description: 'Elaborada sin productos de origen animal, pero con todo el sabor de una torta tradicional.',
-      image: '/img/images7.jpeg',
-      categories: ['vegana', 'tortas-circulares']
-    },
-    {
-      id: 'cheesecake',
-      title: 'Cheesecake Individual',
-      price: 5000,
-      description: 'Porción individual de cheesecake con base de galleta y topping de frutos rojos.',
-      image: '/img/images13.jpeg',
-      categories: ['postres-individuales']
-    },
-    {
-      id: 'brownie',
-      title: 'Brownie de Chocolate',
-      price: 4500,
-      description: 'Brownie intenso de chocolate con nueces, disponible en porción individual o familiar.',
-      image: '/img/images15.jpeg',
-      categories: ['postres-individuales']
-    },
-    {
-      id: 'torta-personalizada',
-      title: 'Torta Personalizada',
-      price: 25000,
-      description: 'Creamos la torta de tus sueños para tu ocasión especial. Consultar por diseños.',
-      image: '/img/images14.jpeg',
-      categories: ['tortas-especiales']
-    },
-    {
-      id: 'torta-tres-leches',
-      title: 'Torta Tres Leches',
-      price: 16000,
-      description: 'Clásica torta bañada en mezcla de tres leches y decorada con merengue o crema chantillí.',
-      image: '/img/images10.jpeg',
-      categories: ['tradicional', 'tortas-cuadradas']
-    },
-    {
-      id: 'torta-zanahoria',
-      title: 'Torta de Zanahoria',
-      price: 17000,
-      description: 'Húmeda torta de zanahoria con especias, nueces y cubierta de frosting de queso crema.',
-      image: '/img/images16.jpeg',
-      categories: ['tradicional', 'tortas-circulares']
-    },
-    {
-      id: 'tiramisu',
-      title: 'Tiramisú Individual',
-      price: 6000,
-      description: 'Clásico postre italiano en porción individual, con café, cacao y queso mascarpone.',
-      image: '/img/images18.jpeg',
-      categories: ['postres-individuales']
-    }
-  ];
-
-  // Filtrar productos por categoría
-  const filteredProducts = products.filter(product =>
-    selectedCategory === 'all' || product.categories.includes(selectedCategory)
-  );
-
-  // Ordenar productos
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    switch (sortBy) {
-      case 'price-asc':
-        return a.price - b.price;
-      case 'price-desc':
-        return b.price - a.price;
-      case 'name':
-        return a.title.localeCompare(b.title);
-      default:
-        return 0;
-    }
-  });
-
-  const categories = [
-    { id: 'all', name: 'Todos' },
-    { id: 'tortas-cuadradas', name: 'Tortas Cuadradas' },
-    { id: 'tortas-circulares', name: 'Tortas Circulares' },
-    { id: 'postres-individuales', name: 'Postres Individuales' },
-    { id: 'tradicional', name: 'Tradicional' },
-    { id: 'especiales', name: 'Especiales' },
-    { id: 'sin-azucar', name: 'Sin Azúcar' },
-    { id: 'sin-gluten', name: 'Sin Gluten' },
-    { id: 'vegana', name: 'Vegana' }
-  ];
-
+function ImgWithFallback({ base, alt, className }) {
+  const [src, setSrc] = useState(`/img/${base}.jpeg`)
   return (
-    <div>
-      {/* Header */}
-      <section className="products-header py-5 mt-5">
-        <div className="container text-center">
-          <h1 className="display-4">Nuestros Productos</h1>
-          <p className="lead">Descubre nuestra amplia variedad de deliciosos postres y tortas</p>
-        </div>
-      </section>
-
-      {/* Category Filters */}
-      <section className="categories-section py-3 bg-light">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-12">
-              <div className="text-center">
-                {categories.map(category => (
-                  <button
-                    key={category.id}
-                    className={`btn category-btn ${selectedCategory === category.id ? 'active' : 'btn-outline-primary'}`}
-                    onClick={() => setSelectedCategory(category.id)}
-                  >
-                    {category.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Filters */}
-      <section className="filter-section py-3">
-        <div className="container">
-          <div className="row justify-content-center">
-            <div className="col-md-3 mb-2">
-              <select
-                className="form-select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="default">Ordenar por</option>
-                <option value="price-asc">Precio: Menor a Mayor</option>
-                <option value="price-desc">Precio: Mayor a Menor</option>
-                <option value="name">Nombre A-Z</option>
-              </select>
-            </div>
-            <div className="col-md-3 mb-2">
-              <select
-                className="form-select"
-                value={sizeFilter}
-                onChange={(e) => setSizeFilter(e.target.value)}
-              >
-                <option value="all">Todos los tamaños</option>
-                <option value="pequeno">Pequeño</option>
-                <option value="mediano">Mediano</option>
-                <option value="grande">Grande</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Products Grid */}
-      <section className="products-container py-5">
-        <div className="container">
-          <div className="row" id="products-grid">
-            {sortedProducts.map(product => (
-              <div key={product.id} className="col-lg-4 col-md-6 mb-4">
-                <div className="card product-card h-100">
-                  <img
-                    src={product.image}
-                    className="card-img-top product-img"
-                    alt={product.title}
-                  />
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title">{product.title}</h5>
-                    <p className="card-text flex-grow-1">{product.description}</p>
-                    <p className="price">${product.price.toLocaleString('es-CL')}</p>
-                    <Link
-                      to={`/producto/${product.id}`} // 🔧 Ruta corregida para coincidir con App.jsx
-                      className="btn btn-primary mt-auto"
-                    >
-                      Ver detalles
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-    </div>
-  );
+    <img
+      src={src}
+      alt={alt}
+      className={className}
+      onError={() => { if (src.endsWith('.jpeg')) setSrc(`/img/${base}.jpg`) }}
+    />
+  )
 }
 
-export default Products;
+const CATALOGO = [
+  { id: 1,  name: 'Selva Negra',             price: 15000, base: 'images1'  },
+  { id: 2,  name: 'Tres Leches',             price: 15000, base: 'images2'  },
+  { id: 3,  name: 'Torta Milhojas',          price: 15000, base: 'images3'  },
+  { id: 4,  name: 'Cheesecake de Frutilla',  price: 15000, base: 'images4'  },
+  { id: 5,  name: 'Red Velvet',              price: 15000, base: 'images5'  },
+  { id: 6,  name: 'Carrot Cake',             price: 15000, base: 'images6'  },
+  { id: 7,  name: 'Chocolate Ganache',       price: 15000, base: 'images7'  },
+  { id: 8,  name: 'Mousse de Maracuyá',      price: 15000, base: 'images8'  },
+  { id: 9,  name: 'Chirimoya Alegre',        price: 15000, base: 'images9'  },
+  { id: 10, name: 'Tiramisú',                price: 15000, base: 'images10' },
+  { id: 11, name: 'Merengue lúcuma',         price: 15000, base: 'images11' },
+  { id: 12, name: 'Torta Frutal',            price: 15000, base: 'images12' },
+  { id: 13, name: 'Cheesecake frutos rojos', price: 15000, base: 'images13' },
+  { id: 14, name: 'Torta Creativa',          price: 15000, base: 'images14' }, // .jpg
+  { id: 15, name: 'Torta Ópera',             price: 15000, base: 'images15' },
+  { id: 16, name: 'Nuez & Caramelo',         price: 15000, base: 'images16' },
+  { id: 17, name: 'Manjar Nuez',             price: 15000, base: 'images17' },
+  { id: 18, name: 'Selva Negra Blanca',      price: 15000, base: 'images18' }
+]
+
+export default function Products() {
+  const [sort, setSort] = useState('precio-asc')
+
+  const productos = useMemo(() => {
+    const arr = [...CATALOGO]
+    if (sort === 'precio-asc') arr.sort((a, b) => a.price - b.price)
+    if (sort === 'precio-desc') arr.sort((a, b) => b.price - a.price)
+    if (sort === 'nombre-asc') arr.sort((a, b) => a.name.localeCompare(b.name))
+    if (sort === 'nombre-desc') arr.sort((a, b) => b.name.localeCompare(a.name))
+    return arr
+  }, [sort])
+
+  return (
+    <section className="products-section py-5">
+      <div className="container">
+        <div className="d-flex flex-wrap align-items-center justify-content-between mb-4">
+          <h2 className="section-title mb-3">Nuestros Productos</h2>
+          <div className="d-flex align-items-center gap-2">
+            <span className="me-2">Ordenar por:</span>
+            <select className="form-select" style={{ width: 200 }} value={sort} onChange={e => setSort(e.target.value)}>
+              <option value="precio-asc">Precio: menor a mayor</option>
+              <option value="precio-desc">Precio: mayor a menor</option>
+              <option value="nombre-asc">Nombre A-Z</option>
+              <option value="nombre-desc">Nombre Z-A</option>
+            </select>
+          </div>
+        </div>
+
+        <div className="row">
+          {productos.map((p) => (
+            <div key={p.id} className="col-md-4 mb-4">
+              <div className="card product-card">
+                <div className="product-image">
+                  <ImgWithFallback base={p.base} alt={p.name} className="product-img" />
+                </div>
+                <div className="card-body text-center">
+                  <h5 className="product-title">{p.name}</h5>
+                  <p className="product-price">Desde ${p.price.toLocaleString('es-CL')}</p>
+                  <Link to={`/producto/${p.id}`} className="btn btn-primary">
+                    Ver Detalle
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Nota removida según indicación */}
+      </div>
+    </section>
+  )
+}
